@@ -85,6 +85,19 @@ find src/main/java/ubc/cosc322 -name '*.java' ! -name 'COSC322Test.java' -print0
 java -cp target/classes ubc.cosc322.MonteCarlo
 ```
 
+## Verification
+
+`EngineSmokeTest` checks state immutability, action generation, and heuristic score mapping without requiring the retired game server. Run the same checks used by the continuous-integration workflow with:
+
+```bash
+mkdir -p build/test-classes
+find team-00/src/main/java/ubc/cosc322 -name '*.java' ! -name 'COSC322Test.java' -print0 \
+  | xargs -0 javac -d build/test-classes
+javac -cp build/test-classes -d build/test-classes \
+  team-00/src/test/java/ubc/cosc322/EngineSmokeTest.java
+java -cp build/test-classes ubc.cosc322.EngineSmokeTest
+```
+
 ## Design notes
 
 The heuristic changes emphasis as the board closes. Early positions rely more heavily on queen-distance territory, while later positions incorporate king-distance control and mobility. The search stores both the board and a mobility map so these evaluations do not need to reconstruct all local information from scratch.
