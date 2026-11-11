@@ -1,0 +1,36 @@
+name: Core engine checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "8"
+
+      - name: Compile offline engine
+        run: |
+          mkdir -p build/test-classes
+          find team-00/src/main/java/ubc/cosc322 -name '*.java' ! -name 'COSC322Test.java' -print0 \
+            | xargs -0 javac -d build/test-classes
+
+      - name: Compile smoke tests
+        run: |
+          javac -cp build/test-classes -d build/test-classes \
+            team-00/src/test/java/ubc/cosc322/EngineSmokeTest.java
+
+      - name: Run smoke tests
+        run: java -cp build/test-classes ubc.cosc322.EngineSmokeTest
